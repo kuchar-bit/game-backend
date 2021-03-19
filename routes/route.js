@@ -9,8 +9,7 @@ router.post("/register", (req, res) => {
     password: req.body.password,
   });
 
-  signUpUser
-    .save()
+  signUpUser.save()
     .then((data) => {
       res.json(data);
     })
