@@ -5,6 +5,8 @@ const cors = require('cors');
 const AuthRoute = require('./routes/route');
 require('dotenv/config')
 
+app.use(express.json());
+app.use(cors());
 
 // Connect to DB
 mongoose.connect(
@@ -13,8 +15,6 @@ mongoose.connect(
   () => console.log("Connected to db")
 );
 
-app.use(express.json());
-app.use(cors());
 app.use("/app", AuthRoute);
 
 app.listen(5000, () => console.log('App is listing on 5000'));

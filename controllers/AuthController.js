@@ -6,25 +6,48 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = "hf92wq3hr7das5321fweg354y2f1#$#YT$B^@*2r1";
 
 const register = async (req, res) => {
+  const { username, email, password: plainTextPassword } = req.body;
+
   const saltPassword = await bcrypt.genSalt();
-  const securePassword = await bcrypt.hash(req.body.password, saltPassword);
+  const password = await bcrypt.hash(plainTextPassword, saltPassword);
 
-  const signUpUser = new registerTemplateCopy({
-    username: req.body.username,
-    email: req.body.email,
-    password: securePassword,
-  });
-
-  signUpUser
-    .save()
-    .then((data) => {
+  try {
+    if (!username) {
       res.json({
-        message: "User added successfully",
+        status: "error",
+        error: "Username cannot be blank",
       });
-    })
-    .catch((error) => {
-      res.json(error);
-    });
+    } else if (!email) {
+      res.json({
+        status: "error",
+        error: "Email cannot be blank",
+      });
+    } else if (!plainTextPassword || plainTextPassword.length < 6) {
+      res.json({
+        status: "error",
+        error:
+          "Password is too short. Password shouls be at least 6 characters",
+      });
+    } else {
+      const respone = await User.create({
+        username,
+        email,
+        password,
+      });
+      if (respone) {
+        res.json({ status: "ok", message: "User created successfully" });
+      }
+      console.log("User created successfully", respone);
+    }
+  } catch (err) {
+    if (err.code === 11000) {
+      res.json({
+        status: "error",
+        error: "Username or email already in use",
+      });
+    }
+    return err;
+  }
 };
 
 const login = async (req, res) => {
@@ -33,25 +56,66 @@ const login = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.json({ status: "error", error: "Invalid email/password" });
-  }
-  try {
-    if (await bcrypt.compare(password, user.password)) {
-      // the username, password combination is successful
-
-      const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET);
-
-      return res.json({ status: "ok", data: token });
-    } else {
-      return res.json({
-        message: "Not allowed",
-      });
-    }
-  } catch {
     return res.json({
-      message: "Cannot found",
+      auth: false,
+      status: "error",
+      error: "User does not exist",
+    });
+  }
+
+  try {
+    await bcrypt.compare(password, user.password, (error, response) => {
+      if (response) {
+        const token = jwt.sign(
+          { id: user._id, email: user.email },
+          JWT_SECRET,
+          {
+            expiresIn: 100,
+          }
+        );
+        res.json({
+          auth: true,
+          token: token,
+          result:
+            "Token zostal stworzony i znaleziono usera o email i passwordu",
+        });
+      } else {
+        return res.json({
+          auth: false,
+          status: "error",
+          error: "Invalid email/password",
+        });
+      }
+    });
+  } catch (error) {
+    return response.json({
+      auth: false,
+      message: "Not found",
+    });
+  }
+};
+const verifyToken = (req, res, next) => {
+  const token = req.headers["x-access-token"];
+
+  if (!token) {
+    res.send("Token is needed");
+  } else {
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        res.json({
+          auth: false,
+          message: "You failed to authenticate",
+        });
+      } else {
+        req.userID = decoded.id;
+        next();
+      }
     });
   }
 };
 
-module.exports = { register, login };
+const home = (req, res) => {
+  res.send("You, you are authenticated");
+};
+
+module.exports = { register, login, home, verifyToken };
