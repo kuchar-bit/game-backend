@@ -6,6 +6,6 @@ router.post("/register", AuthController.register);
 
 router.post("/login", AuthController.login);
 
-router.get("/isAuth", AuthController.verifyToken, AuthController.home);
+router.get("/isAuth", AuthController.verifyToken, AuthController.users);
 
 module.exports = router;

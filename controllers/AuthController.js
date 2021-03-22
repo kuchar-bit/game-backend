@@ -1,7 +1,7 @@
-const registerTemplateCopy = require("../models/User");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const jwt_decode = require("jwt-decode");
 
 const JWT_SECRET = "hf92wq3hr7das5321fweg354y2f1#$#YT$B^@*2r1";
 
@@ -67,10 +67,10 @@ const login = async (req, res) => {
     await bcrypt.compare(password, user.password, (error, response) => {
       if (response) {
         const token = jwt.sign(
-          { id: user._id, email: user.email },
+          { username: user.username, email: user.email },
           JWT_SECRET,
           {
-            expiresIn: 100,
+            expiresIn: 500,
           }
         );
         res.json({
@@ -97,7 +97,7 @@ const login = async (req, res) => {
 const verifyToken = (req, res, next) => {
   const token = req.headers["x-access-token"];
 
-  if (!token) {
+  if (token == null) {
     res.send("Token is needed");
   } else {
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
@@ -108,6 +108,12 @@ const verifyToken = (req, res, next) => {
         });
       } else {
         req.userID = decoded.id;
+        decoded_token = jwt.decode(token);
+        res.json({
+          auth: true,
+          message: "Authentication completed",
+          user: decoded_token
+        });
         next();
       }
     });
@@ -115,7 +121,15 @@ const verifyToken = (req, res, next) => {
 };
 
 const home = (req, res) => {
-  res.send("You, you are authenticated");
+  res.send("Authentication is completed!");
 };
 
-module.exports = { register, login, home, verifyToken };
+const users = (req, res) => {
+  const token = req.headers["x-access-token"];
+  const decoded = jwt.decode(token);
+
+  res.json({
+    user: decoded
+  })
+};
+module.exports = { register, login, home, verifyToken, users };
