@@ -68,10 +68,7 @@ const login = async (req, res) => {
       if (response) {
         const token = jwt.sign(
           { username: user.username, email: user.email },
-          JWT_SECRET,
-          {
-            expiresIn: 500,
-          }
+          JWT_SECRET
         );
         res.json({
           auth: true,
@@ -121,15 +118,6 @@ const verifyToken = (req, res, next) => {
 };
 
 const home = (req, res) => {
-  res.send("Authentication is completed!");
 };
 
-const users = (req, res) => {
-  const token = req.headers["x-access-token"];
-  const decoded = jwt.decode(token);
-
-  res.json({
-    user: decoded
-  })
-};
-module.exports = { register, login, home, verifyToken, users };
+module.exports = { register, login, home, verifyToken };
