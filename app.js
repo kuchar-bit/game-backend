@@ -2,23 +2,26 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
+
 const AuthRoute = require("./routes/route");
-const socketio = require("socket.io");
+
 const http = require("http");
+const server = http.createServer(app);
+const socketio = require("socket.io");
+const io = socketio(server, {
+  cors: {
+    origin: "*",
+    method: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true,
+  },
+});
 require("dotenv/config");
 
 app.use(express.json());
 app.use(cors());
-const server = http.createServer(app);
-const io = socketio(server);
 
-io.on("connection", (socket) => {
-  console.log("We have a new connection");
-
-  socket.on("disconnect", () => {
-    console.log("User had left");
-  });
-});
+app.use("/app", AuthRoute);
 
 // Connect to DB
 mongoose.connect(
@@ -27,6 +30,8 @@ mongoose.connect(
   () => console.log("Connected to db")
 );
 
-app.use("/app", AuthRoute);
+io.on("connection", (socket) => {
+  console.log("User connected");
+});
 
-app.listen(5000, () => console.log("App is listing on 5000"));
+server.listen(5000, () => console.log("App is listing on 5000"));
