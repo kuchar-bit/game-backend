@@ -32,6 +32,10 @@ mongoose.connect(
 
 io.on("connection", (socket) => {
   console.log("User connected");
+
+  socket.on("disconnect", () => {
+    console.log("Use had left!")
+  } )
 });
 
 server.listen(5000, () => console.log("App is listing on 5000"));
