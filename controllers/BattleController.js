@@ -1,7 +1,21 @@
-
+const jwt = require("jsonwebtoken");
 
 const home = (req, res) => {
-    res.send("Server is running !!!")
-} 
+  const token = req.headers["x-access-token"];
 
-module.exports = { home }
+  if (!username) {
+    res.json({
+      status: "error",
+      error: "Username cannot be blank",
+    });
+  } else {
+    decoded_token = jwt.decode(token);
+    res.json({
+      user: decoded_token,
+    });
+  }
+
+  res.send("Server is running !!!");
+};
+
+module.exports = { home };
