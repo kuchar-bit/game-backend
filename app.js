@@ -33,12 +33,24 @@ mongoose.connect(
 io.on("connection", (socket) => {
   console.log("User connected");
 
-  socket.on("data", ({ name, user }) => {
-    console.log(name, user);
+  // Welcome current user
+  socket.emit("message", "Welcome in the battle");
+
+  // Broadcast if user connects
+  socket.broadcast.emit("message", "A user has joined the chat")
+
+  socket.on("user_data", ({ user }) => { 
+    const user_info = user;
+    console.log(user_info);
   });
 
+  socket.on("props_room", ({ name }) => {
+    console.log(name);
+  });
+  
+
   socket.on("disconnect", () => {
-    console.log("Use had left!");
+    io.emit("message", "A user has left the chat")
   });
 });
 
