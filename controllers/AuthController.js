@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const User = require("../models/User");
+ 
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = "hf92wq3hr7das5321fweg354y2f1#$#YT$B^@*2r1";
@@ -12,17 +12,17 @@ const register = async (req, res) => {
 
   try {
     if (!username) {
-      res.json({
+      return res.json({
         status: "error",
         error: "Username cannot be blank",
       });
     } else if (!email) {
-      res.json({
+      return res.json({
         status: "error",
         error: "Email cannot be blank",
       });
     } else if (!plainTextPassword || plainTextPassword.length < 6) {
-      res.json({
+      return res.json({
         status: "error",
         error:
           "Password is too short. Password shouls be at least 6 characters",
@@ -72,7 +72,7 @@ const login = async (req, res) => {
           // },
           JWT_SECRET
         );
-        res.json({
+        return res.json({
           auth: true,
           token: token,
           result:

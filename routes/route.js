@@ -9,6 +9,6 @@ router.post("/login", AuthController.login);
 
 router.get("/isAuth", AuthController.verifyToken, AuthController.home);
 
-router.get("/battle", BattleController.home);
+router.get("/battle", AuthController.verifyToken );
 
 module.exports = router;

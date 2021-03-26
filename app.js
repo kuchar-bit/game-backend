@@ -33,8 +33,8 @@ mongoose.connect(
 io.on("connection", (socket) => {
   console.log("User connected");
 
-  socket.on("join", ({ tag }) => {
-    console.log(tag);
+  socket.on("data", ({ name, user }) => {
+    console.log(name, user);
   });
 
   socket.on("disconnect", () => {
