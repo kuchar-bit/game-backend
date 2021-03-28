@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const AuthRoute = require("./routes/route");
+const userOperations = require("./users");
 
 const http = require("http");
 const server = http.createServer(app);
@@ -37,20 +38,26 @@ io.on("connection", (socket) => {
   socket.emit("message", "Welcome in the battle");
 
   // Broadcast if user connects
-  socket.broadcast.emit("message", "A user has joined the chat")
+  socket.broadcast.emit("message", "A user has joined the chat");
 
-  socket.on("user_data", ({ user }) => { 
-    const user_info = user;
-    console.log(user_info);
-  });
+  socket.on("join", ({ name, user }) => {
+    const { error, userInfo } = userOperations.addUser({
+      id: socket.id,
+      user,
+      name,
+    });
 
-  socket.on("props_room", ({ name }) => {
-    console.log(name);
+    socket.emit("message", {
+      userInfo: "admin",
+      text: `${user}, welcome to the room ${name}`,
+    });
+
+    socket.join(userInfo);
+
   });
-  
 
   socket.on("disconnect", () => {
-    io.emit("message", "A user has left the chat")
+    io.emit("message", "A user has left the chat");
   });
 });
 
