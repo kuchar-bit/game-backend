@@ -55,7 +55,7 @@ const login = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.json({
+    res.json({
       auth: false,
       status: "error",
       error: "User does not exist",
@@ -79,7 +79,7 @@ const login = async (req, res) => {
             "Token zostal stworzony i znaleziono usera o email i passwordu",
         });
       } else {
-        return res.json({
+        res.json({
           auth: false,
           status: "error",
           error: "Invalid email/password",
@@ -87,7 +87,7 @@ const login = async (req, res) => {
       }
     });
   } catch (error) {
-    return response.json({
+    response.json({
       auth: false,
       message: "Not found",
     });
