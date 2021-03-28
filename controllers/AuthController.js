@@ -67,9 +67,9 @@ const login = async (req, res) => {
       if (response) {
         const token = jwt.sign(
           { username: user.username, email: user.email },
-          // {
-          //   expiresIn: 500,
-          // },
+          {
+            expiresIn: 500,
+          },
           JWT_SECRET
         );
         res.json({
