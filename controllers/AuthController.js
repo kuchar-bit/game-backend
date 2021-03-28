@@ -12,17 +12,17 @@ const register = async (req, res) => {
 
   try {
     if (!username) {
-      res.json({
+      return res.json({
         status: "error",
         error: "Username cannot be blank",
       });
     } else if (!email) {
-      res.json({
+      return res.json({
         status: "error",
         error: "Email cannot be blank",
       });
     } else if (!plainTextPassword || plainTextPassword.length < 6) {
-      res.json({
+      return res.json({
         status: "error",
         error:
           "Password is too short. Password shouls be at least 6 characters",
@@ -67,12 +67,12 @@ const login = async (req, res) => {
       if (response) {
         const token = jwt.sign(
           { username: user.username, email: user.email },
-          {
-            expiresIn: 500,
-          },
+          // {
+          //   expires_In: 500,
+          // },
           JWT_SECRET
         );
-        res.json({
+        return res.json({
           auth: true,
           token: token,
           result:
